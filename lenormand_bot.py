@@ -1,5 +1,5 @@
 import logging
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackQueryHandler, Filters
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 import random
 
@@ -11,18 +11,21 @@ logger = logging.getLogger(__name__)
     # Задаем токен и создаем экземпляр бота
 TOKEN = '5478416461:AAHaNYaKZzLmBjuVG9Y-mbd78H7eAzJa064'
 updater = Updater(token=TOKEN, use_context=True)
-dispatcher = updater.dispatcher
-
-    # Функция для обработки команды /start
+# Функция для обработки команды /start
 def start(update, context):
+
     # Создаем клавиатуру для меню
     keyboard = [[InlineKeyboardButton("Прогноз на день", callback_data='predict')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-
     # Отправляем сообщение с приветствием и клавиатурой
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text="Привет! Я бот для гадания на картах Ленорман. Что бы вы хотели сделать?",
                              reply_markup=reply_markup)
+dispatcher = updater.dispatcher
+dispatcher.add_handler(CommandHandler('start', start))
+
+
+    
 
     # Функция для обработки колбэка от кнопки "Прогноз на день"
 def predict_callback(update, context):
@@ -41,9 +44,10 @@ def get_random_card_and_position():
     # Получаем случайную карту и информацию о ее позиции в раскладе
     card, position = get_random_card_and_position()
 
+
     # Отправляем сообщение с информацией о карте и ее позиции, а также кнопкой "Назад"
     context.bot.send_photo(chat_id=update.effective_chat.id,
-                           photo=open(f'images/{card}.jpg', 'rb'),
+                           photo=open(f'cards/{card}.jpg', 'rb'),
                            caption=f"Позиция карты в раскладе: {position}\n\n{get_card_meaning(card)}",
                            reply_markup=reply_markup)
 
@@ -193,13 +197,52 @@ def spread_choice(update, context):
 spread = lenormand_spread()
 
 # Обработка карт из расклада Ленорман
-for position in spread:
-    card = card_positions[position]
-    meaning = card_meanings[card]
-    img_path = f'cards/{card}.jpg'
-    with open(img_path, 'rb') as f:
-        context.bot.send_photo(chat_id=query.message.chat_id, photo=f)
-    context.bot.send_message(chat_id=query.message.chat_id, text=meaning)
+def my_function(update, context):
+    for position in spread:
+        card = card_positions[position]
+        meaning = card_meanings[card]
+        img_path = f'cards/{card}.jpg'
+        with open(img_path, 'rb') as f:
+            context.bot.send_photo(chat_id=update.message.chat_id, photo=f)
+        context.bot.send_message(chat_id=update.message.chat_id, text=meaning)
+
+dispatcher.add_handler(CommandHandler('my_command', my_function))
+
+CARD_VALUES = {
+    "Рыцарь": 2,
+    "Вызов": 3,
+    "Сорока": 4,
+    "Чайка": 5,
+    "Дом": 6,
+    "Букет": 7,
+    "Квартира": 8,
+    "Лук": 8,
+    "Рюмка": 9,
+    "Меч": 10,
+    "Крест": 11,
+    "Кольцо": 12,
+    "Ребенок": 13,
+    "Корабль": 14,
+    "Козырь": 15,
+    "Дорога": 16,
+    "Письма": 17,
+    "Деньги": 18,
+    "Звоны": 19,
+    "Сердце": 20,
+    "Дар": 21,
+    "Путешествие": 22,
+    "Мыслитель": 23,
+    "Голова": 24,
+    "Книга": 26,
+    "Город": 28,
+    "Лиса": 29,
+    "Лотос": 30,
+    "Солнце": 31,
+    "Луна": 32,
+    "Ключ": 33,
+    "Корона": 35,
+    "Крысы": 36
+}
   
  # Расшифровка общего результата
 def get_total_value(cards):
@@ -210,15 +253,53 @@ def get_total_value(cards):
             total += value
     return total
 
+CARD_NAMES = {
+    "Рыцарь": 1,
+    "Вызов": 2,
+    "Сорока": 3,
+    "Чайка": 4,
+    "Дом": 5,
+    "Букет": 6,
+    "Квартира": 7,
+    "Лук": 8,
+    "Рюмка": 9,
+    "Меч": 10,
+    "Крест": 11,
+    "Кольцо": 12,
+    "Ребенок": 13,
+    "Корабль": 14,
+    "Козырь": 15,
+    "Дорога": 16,
+    "Письма": 17,
+    "Деньги": 18,
+    "Звоны": 19,
+    "Сердце": 20,
+    "Дар": 21,
+    "Путешествие": 22,
+    "Мыслитель": 23,
+    "Голова": 24,
+    "Книга": 26,
+    "Город": 28,
+    "Лиса": 29,
+    "Лотос": 30,
+    "Солнце": 31,
+    "Луна": 32,
+    "Ключ": 33,
+    "Корона": 35,
+    "Крысы": 36,
+}
 def forecast(update, context):
     # Выбираем случайные карты
     chosen_cards = random.sample(CARD_NAMES.keys(), 3)
-
+    QUESTIONS = [
+        "Что будет происходить с Вами сегодня?"
+    ]
     # Отправляем пользователю вопросы и карты
     for i, card in enumerate(chosen_cards):
         question = QUESTIONS[i]
         image_url = CARD_IMAGES[card]
         context.bot.send_photo(chat_id=update.effective_chat.id, photo=image_url, caption=question)
+
 
 
     # Вычисляем общий результат

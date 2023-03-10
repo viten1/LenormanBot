@@ -1,0 +1,1 @@
+worker: python lenormand_bot.py

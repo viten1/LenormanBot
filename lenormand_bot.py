@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 # функция, которая будет вызываться при команде /start
 def start(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Привет! Я простой бот.")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Привет! Я простой бот Виталька.")
 
 # функция, которая будет вызываться при получении текстового сообщения
 def echo(update, context):

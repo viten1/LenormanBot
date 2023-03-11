@@ -16,6 +16,13 @@ updater = Updater(token=TOKEN, use_context=True)
 # Функция для обработки команды /start
 def start(update, context):
 
+
+  # Регистрируем обработчик команды /start и /forecast
+    start_handler = CommandHandler('start', start)
+    forecast_handler = CommandHandler('forecast', forecast)
+
+    dispatcher.add_handler(start_handler)
+
     # Создаем клавиатуру для меню
     keyboard = [[InlineKeyboardButton("Прогноз на день", callback_data='predict')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -25,6 +32,19 @@ def start(update, context):
                              reply_markup=reply_markup)
 dispatcher = updater.dispatcher
 dispatcher.add_handler(CommandHandler('start', start))
+
+
+menu = [['/forecast']]
+menu_markup = ReplyKeyboardMarkup(menu, one_time_keyboard=True)
+
+def unknown(update, context):
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Извините, команда не распознана.")
+def button(update, context):
+    query = update.callback_query
+    context.bot.send_message(chat_id=query.message.chat_id, text="Вы уже нажали кнопку!")
+
+
+
 
 
 
@@ -62,10 +82,6 @@ def back_callback(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text="Что бы вы хотели сделать?",
                              reply_markup=reply_markup)
-
-    # Регистрируем обработчик команды /start
-    start_handler = CommandHandler('start', start)
-    dispatcher.add_handler(start_handler)
 
 import random
 
@@ -357,24 +373,6 @@ def my_function(total_value, context, update):
     
     my_function(30, context, update)
 
-
-# create command handlers for /start and /forecast
-start_handler = CommandHandler('start', start)
-forecast_handler = CommandHandler('forecast', forecast)
-
-#Создаем обработчики для команды /start и /forecast
-start_handler = CommandHandler('start', start)
-forecast_handler = CommandHandler('forecast', forecast)
-
-#Создаем меню в виде кнопок
-menu = [['/forecast']]
-menu_markup = ReplyKeyboardMarkup(menu, one_time_keyboard=True)
-
-def unknown(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Извините, команда не распознана.")
-def button(update, context):
-    query = update.callback_query
-    context.bot.send_message(chat_id=query.message.chat_id, text="Вы уже нажали кнопку!")
         
 
 #Устанавливаем адрес вебхука
@@ -387,16 +385,12 @@ updater.start_webhook(listen="0.0.0.0",
                       url_path=TOKEN,
                       webhook_url=WEBHOOK_URL)
 
-
-
 #Регистрируем обработчики и меню
 dispatcher.add_handler(start_handler)
 dispatcher.add_handler(forecast_handler)
 dispatcher.add_handler(MessageHandler(Filters.text, unknown))
 dispatcher.add_handler(CallbackQueryHandler(button))
 dispatcher.bot.set_webhook(url=WEBHOOK_URL)
-
-
 
 #Запускаем бот
 updater.start_polling()

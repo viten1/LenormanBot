@@ -1,7 +1,9 @@
 import logging
 from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackQueryHandler, Filters
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
 import random
+
+
 
     # Задаем уровень логов
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -25,7 +27,6 @@ dispatcher = updater.dispatcher
 dispatcher.add_handler(CommandHandler('start', start))
 
 
-    
 
     # Функция для обработки колбэка от кнопки "Прогноз на день"
 def predict_callback(update, context):
@@ -288,24 +289,63 @@ CARD_NAMES = {
     "Корона": 35,
     "Крысы": 36,
 }
+
+
+
 def forecast(update, context):
     # Выбираем случайные карты
     chosen_cards = random.sample(CARD_NAMES.keys(), 3)
     QUESTIONS = [
         "Что будет происходить с Вами сегодня?"
     ]
+
+    CARD_IMAGES = {
+"Рыцарь": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/01_rytsar.jpg",
+"Вызов": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/02_vyzvanie.jpg",
+"Сорока": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/03_soroka.jpg",
+"Чайка": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/04_chayka.jpg",
+"Дом": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/05_dom.jpg",
+"Букет": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/06_buket.jpg",
+"Квартира": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/07_kvartira.jpg",
+"Лук": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/08_luk.jpg",
+"Рюмка": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/09_ryumka.jpg",
+"Меч": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/10_mech.jpg",
+"Крест": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/11_krest.jpg",
+"Кольцо": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/12_koltso.jpg",
+"Ребенок": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/13_rebenok.jpg",
+"Корабль": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/14_korabl.jpg",
+"Козырь": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/15_kozyr.jpg",
+"Дорога": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/16_doroga.jpg",
+"Письма": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/17_pisma.jpg",
+"Деньги": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/18_dengi.jpg",
+"Звоны": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/19_zvony.jpg",
+"Сердце": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/20_serdce.jpg",
+"Дар": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/21_dar.jpg",
+"Путешествие": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/22_puteshestvie.jpg",
+"Мыслитель": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/23_myslitel.jpg",
+"Голова": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/24_golova.jpg",
+"Книга": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/26_kniga.jpg",
+"Береза": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/28_bereza.jpg",
+"Лиса": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/27_puteshestvie.jpg",
+"Лотос": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/30_lotos.jpg",
+"Солнце": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/31_solntse.jpg",
+"Луна": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/32_luna.jpg",
+"Ключ": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/33_klyuch.jpg",
+"Корона": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/35_korona.jpg",
+"Крысы": "https://raw.githubusercontent.com/viten1/LenormanBot/main/cards/29_krysy.jpg",
+}
+
     # Отправляем пользователю вопросы и карты
     for i, card in enumerate(chosen_cards):
         question = QUESTIONS[i]
         image_url = CARD_IMAGES[card]
         context.bot.send_photo(chat_id=update.effective_chat.id, photo=image_url, caption=question)
 
-
-
     # Вычисляем общий результат
     total_value = get_total_value(chosen_cards)
 
     # Отправляем общий результат
+def my_function(total_value, context, update):
     if total_value <= 23:
         message = "Общий результат: Вы на верном пути. Ваше будущее обещает быть ярким и успешным."
     elif total_value <= 29:
@@ -313,7 +353,14 @@ def forecast(update, context):
     else:
         message = "Общий результат: Вам следует проявлять больше осторожности и внимательности, чтобы избежать серьезых проблем в будущем."
 
-context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=message) 
+    
+    my_function(30, context, update)
+
+
+# create command handlers for /start and /forecast
+start_handler = CommandHandler('start', start)
+forecast_handler = CommandHandler('forecast', forecast)
 
 #Создаем обработчики для команды /start и /forecast
 start_handler = CommandHandler('start', start)
@@ -323,13 +370,33 @@ forecast_handler = CommandHandler('forecast', forecast)
 menu = [['/forecast']]
 menu_markup = ReplyKeyboardMarkup(menu, one_time_keyboard=True)
 
+def unknown(update, context):
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Извините, команда не распознана.")
+def button(update, context):
+    query = update.callback_query
+    context.bot.send_message(chat_id=query.message.chat_id, text="Вы уже нажали кнопку!")
+        
+
+#Устанавливаем адрес вебхука
+import os
+
+PORT = int(os.environ.get('PORT', 5000))
+WEBHOOK_URL = "https://lenorman.herokuapp.com"
+updater.start_webhook(listen="0.0.0.0",
+                      port=PORT,
+                      url_path=TOKEN,
+                      webhook_url=WEBHOOK_URL)
+
+
+
 #Регистрируем обработчики и меню
 dispatcher.add_handler(start_handler)
 dispatcher.add_handler(forecast_handler)
 dispatcher.add_handler(MessageHandler(Filters.text, unknown))
 dispatcher.add_handler(CallbackQueryHandler(button))
-dispatcher.bot.set_my_commands(commands)
 dispatcher.bot.set_webhook(url=WEBHOOK_URL)
+
+
 
 #Запускаем бот
 updater.start_polling()
